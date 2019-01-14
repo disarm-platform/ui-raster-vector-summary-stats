@@ -14,6 +14,7 @@ library(geoR)
 library(velox)
 library(sf)
 library(RColorBrewer)
+library(geojsonio)
 
 
 # Define map
@@ -42,28 +43,22 @@ shinyServer(function(input, output) {
                  {
                    input_poly <- st_read(inFile$datapath)
                    
-                   # Check if points and if so, create buffer
-                   # and extract using that polygon
-                   if(unique(st_geometry_type(input_poly))=="POINT"){
-                     centroids <- st_centroid(input_poly)
-                     input_poly <- st_buffer(centroids, input$Buffer/112)
+                   # Check overall area of polygon
+                   overall_area <- sum(st_area(input_poly)) / 1e+06
+                   
+                   
+                   if(overall_area>20000){
+                     showNotification(paste("File too large. Max 20,000 km2 allowed"))
                    }
                    
-                   # if(length(dups)>0){
-                   #   
-                   #   drop <- unlist(sapply(dups, function(x){as.numeric(x[-1])}))
-                   #   pred_points <- pred_points[-drop,]
-                   #   
-                   #   showNotification(paste("Removed", length(drop), "prediction points with duplicate coordinates"))
-                   #   
-                   # }
-                   
                    # Make call to algorithm
-                   sum_with_na <- function(x){sum(x, na.rm=T)}
-                   worldpop_africa$crop(as.vector(extent(input_poly)))
-                   input_poly$extracted_pop <- round(worldpop_africa$extract(sp=input_poly, fun=sum_with_na), 0)
-                   print("Extraction complete")
-                   return(input_poly)
+                   request_json <- geojson_json(input_poly)
+                   input_data_list <- list(polys = request_json,
+                                      stats = input$stat,
+                                      geojson_out = input$geojson)
+                   response <-  httr::POST(url = "http://srv.tmpry.com:8080/function/fn-hotspot-gears_0-0-2",
+                                           body = toJSON(input_data_list),
+                                           content_type_json())
 
                  })
   })

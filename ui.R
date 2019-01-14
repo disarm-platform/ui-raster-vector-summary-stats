@@ -19,7 +19,14 @@ dashboardPage(
 
              box(width = 12, 
                   fileInput("File", "Query polygons", width = "20%"),
-                  sliderInput("Buffer", "Buffer around points (km)", min = 0.001, max = 100, value = 25),
+                 selectInput("stat", "Statistic", 
+                             c("Sum" = "sum",
+                              "Mean" = "mean",
+                              "Max" = "max",
+                              "Min" = "min")),
+                 selectInput("geojson", "Return GeoJSON", 
+                             c("True" = "TRUE",
+                               "False" = "FALSE")),
                   downloadButton("downloadData", "Download table"),
                   downloadButton("downloadGeoData", "Download geojson")),
             
