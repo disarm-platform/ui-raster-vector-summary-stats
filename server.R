@@ -42,25 +42,26 @@ shinyServer(function(input, output) {
                  value = 5,
                  {
                    input_poly <- st_read(inFile$datapath)
-                   
+                   #browser()
                    # Check overall area of polygon
                    overall_area <- sum(st_area(input_poly)) / 1e+06
                    
                    
-                   if(overall_area>20000){
+                   if(as.vector(overall_area)>20000){
                      showNotification(paste("File too large. Max 20,000 km2 allowed"))
                    }
                    
                    # Make call to algorithm
-                   browser()
-                   request_json <- geojson_json(input_poly)
+                   
+                   request_json <- geojson_list(input_poly)
                    input_data_list <- list(polys = request_json,
                                       stats = input$stat,
                                       geojson_out = "true")
-                   response <-  httr::POST(url = "http://srv.locational.io:8080/function/fn-worldpop-polygon-extractor",
-                                           body = toJSON(input_data_list),
+                   response <-  httr::POST(#url = "http://srv.locational.io:8080/function/fn-worldpop-polygon-extractor",
+                                           url = "http://10.0.0.110:8080",
+                                          body = toJSON(input_data_list), 
                                            content_type_json())
-
+                      browser()
                  })
   })
   
