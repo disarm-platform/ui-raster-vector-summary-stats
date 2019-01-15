@@ -24,7 +24,7 @@ map <- leaflet(max) %>%
   )
 
 # Get Worldpop data
-worldpop_africa <- velox("/Users/hughsturrock/Dropbox/Random/AFR_PPP_2015_adj_v2.tif")
+#worldpop_africa <- velox("/Users/hughsturrock/Dropbox/Random/AFR_PPP_2015_adj_v2.tif")
 
 
 shinyServer(function(input, output) {
@@ -52,11 +52,12 @@ shinyServer(function(input, output) {
                    }
                    
                    # Make call to algorithm
+                   browser()
                    request_json <- geojson_json(input_poly)
                    input_data_list <- list(polys = request_json,
                                       stats = input$stat,
-                                      geojson_out = input$geojson)
-                   response <-  httr::POST(url = "http://srv.tmpry.com:8080/function/fn-hotspot-gears_0-0-2",
+                                      geojson_out = "true")
+                   response <-  httr::POST(url = "http://srv.locational.io:8080/function/fn-worldpop-polygon-extractor",
                                            body = toJSON(input_data_list),
                                            content_type_json())
 
