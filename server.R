@@ -10,11 +10,11 @@ library(readr)
 library(stringi)
 library(DT)
 library(ggplot2)
-library(geoR)
 library(velox)
 library(sf)
 library(RColorBrewer)
 library(geojsonio)
+
 
 
 # Define map
@@ -57,11 +57,13 @@ shinyServer(function(input, output) {
                    input_data_list <- list(polys = request_json,
                                       stats = input$stat,
                                       geojson_out = "true")
-                   response <-  httr::POST(#url = "http://srv.locational.io:8080/function/fn-worldpop-polygon-extractor",
-                                           url = "http://10.0.0.110:8080",
-                                          body = toJSON(input_data_list), 
+                   response <-  httr::POST(url = "http://srv.locational.io:8080/function/fn-worldpop-polygon-extractor",
+                                          body = as.json(input_data_list), 
                                            content_type_json())
-                      browser()
+                      # browser()
+                   
+                   response_for_map = st_read(as.json(content(response)))
+                   return(response_for_map)
                  })
   })
   
@@ -80,18 +82,22 @@ shinyServer(function(input, output) {
 
   
   output$pop_map <- renderLeaflet({
+    
+    # thing = as.data.frame(map_data())[,input$stat]
+    
     if (is.null(map_data())) {
       return(map %>% setView(0, 0, zoom = 2))
     }
 
     # Define color palette
     pal <-
+      browser()
       colorNumeric(brewer.pal(9, "Greens")[5:9],
-                   map_data()$extracted_pop)
+                   as.data.frame(map_data())[,input$stat])
     
     labels <- sprintf(
       paste("<strong>Population: </strong>",
-      map_data()$extracted_pop)
+      map_data()[, input$stat])
     ) %>% lapply(htmltools::HTML)
     
     # Map
@@ -99,7 +105,7 @@ shinyServer(function(input, output) {
     map %>% addPolygons(
       data = input_poly_sp,
       color = "#696969",
-      fillColor = pal(map_data()$extracted_pop),
+      fillColor = pal(as.data.frame(map_data())[,input$stat]),
       fillOpacity = 0.6,
       weight = 4,
       highlightOptions = highlightOptions(
@@ -110,7 +116,7 @@ shinyServer(function(input, output) {
       ),
       label = labels) %>%
         leaflet::addLegend(pal = pal, 
-                           values = map_data()$extracted_pop,
+                           values = as.data.frame(map_data())[,input$stat],
                            title = "Population")
 
       

@@ -2,7 +2,7 @@ library(leaflet)
 library(lubridate)
 library(shinyBS)
 library(shinydashboard)
-library(dashboardthemes)
+# library(dashboardthemes)
 library(shinyjs)
 
 dashboardPage(
@@ -12,9 +12,9 @@ dashboardPage(
     
     useShinyjs(),
     
-    shinyDashboardThemes(
-      theme = "grey_dark"
-    ),
+    # shinyDashboardThemes(
+    #   theme = "grey_dark"
+    # ),
     
     fluidRow(
       
