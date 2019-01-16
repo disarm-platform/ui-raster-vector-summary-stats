@@ -16,7 +16,6 @@ library(RColorBrewer)
 library(geojsonio)
 
 
-
 # Define map
 map <- leaflet(max) %>%
   addTiles(
@@ -42,7 +41,7 @@ shinyServer(function(input, output) {
                  value = 5,
                  {
                    input_poly <- st_read(inFile$datapath)
-                   #browser()
+
                    # Check overall area of polygon
                    overall_area <- sum(st_area(input_poly)) / 1e+06
                    
@@ -60,7 +59,6 @@ shinyServer(function(input, output) {
                    response <-  httr::POST(url = "http://srv.locational.io:8080/function/fn-worldpop-polygon-extractor",
                                           body = as.json(input_data_list), 
                                            content_type_json())
-                      # browser()
                    
                    response_for_map = st_read(as.json(content(response)))
                    return(response_for_map)
@@ -83,21 +81,20 @@ shinyServer(function(input, output) {
   
   output$pop_map <- renderLeaflet({
     
-    # thing = as.data.frame(map_data())[,input$stat]
-    
     if (is.null(map_data())) {
       return(map %>% setView(0, 0, zoom = 2))
     }
+    
+    extracted_stat = as.data.frame(map_data())[,input$stat]
 
     # Define color palette
     pal <-
-      browser()
       colorNumeric(brewer.pal(9, "Greens")[5:9],
-                   as.data.frame(map_data())[,input$stat])
+                   extracted_stat)
     
     labels <- sprintf(
       paste("<strong>Population: </strong>",
-      map_data()[, input$stat])
+            extracted_stat)
     ) %>% lapply(htmltools::HTML)
     
     # Map
@@ -105,7 +102,7 @@ shinyServer(function(input, output) {
     map %>% addPolygons(
       data = input_poly_sp,
       color = "#696969",
-      fillColor = pal(as.data.frame(map_data())[,input$stat]),
+      fillColor = pal(extracted_stat),
       fillOpacity = 0.6,
       weight = 4,
       highlightOptions = highlightOptions(
@@ -116,7 +113,7 @@ shinyServer(function(input, output) {
       ),
       label = labels) %>%
         leaflet::addLegend(pal = pal, 
-                           values = as.data.frame(map_data())[,input$stat],
+                           values = extracted_stat,
                            title = "Population")
 
       
