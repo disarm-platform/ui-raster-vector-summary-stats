@@ -23,17 +23,32 @@ dashboardPage(
              box(width = 3, height = 800,
                  
                  # Conditional inputs for local file v GeoJSON/base64 string/URL
-                 radioButtons("raster_type","Raster input type",
+                 h4("Raster input type"),
+                 radioButtons("raster_type","",
                               choices = c("Local .tif file", "Base 64 string or URL"),
                               selected = "Local .tif file"),
                  conditionalPanel(
                    condition = "input.raster_type == 'Local .tif file'",
-                   fileInput("file_input", "")
+                   fileInput("raster_file_input", "")
                  ),
                  conditionalPanel(
                    condition = "input.raster_type == 'Base 64 string or URL'",
-                   textInput("text_input", "", placeholder = "Base 64 string or URL")
+                   textInput("raster_text_input", "", placeholder = "Base 64 string or URL")
                  ),
+                 
+                 h4("GeoJSON input type"),
+                 radioButtons("GeoJSON_type","",
+                              choices = c("Local file", "GeoJSON"),
+                              selected = "Local file"),
+                 conditionalPanel(
+                   condition = "input.GeoJSON_type == 'Local file'",
+                   fileInput("geo_file_input", "")
+                 ),
+                 conditionalPanel(
+                   condition = "input.GeoJSON_type == 'GeoJSON'",
+                   textInput("geo_text_input", "", placeholder = "GeoJSON string or URL")
+                 ),
+                 
                  
                  #fileInput("File", "Query polygons", width = "100%"),
                  #shinyjs::disabled(textInput("textInput", "Query raster", 
@@ -42,10 +57,14 @@ dashboardPage(
                              c("Sum" = "sum",
                               "Mean" = "mean",
                               "Max" = "max",
-                              "Min" = "min")),
+                              "Min" = "min"),
+                             multiple = TRUE),
                  # selectInput("geojson", "Return GeoJSON", 
                  #             c("True" = "TRUE",
                  #               "False" = "FALSE")),
+                
+                actionButton("goExtract", "RUN QUERY"),
+              
                   downloadButton("downloadData", "Download table"),
                   downloadButton("downloadGeoData", "Download geojson")),
             

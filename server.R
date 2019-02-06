@@ -14,6 +14,7 @@ library(velox)
 library(sf)
 library(RColorBrewer)
 library(geojsonio)
+library(base64enc)
 
 
 # Define map
@@ -28,41 +29,67 @@ map <- leaflet(max) %>%
 
 shinyServer(function(input, output) {
   
-  map_data <- reactive({
-    inFile <- input$File
+  request_list <- reactive({
 
-    if (is.null(inFile))
+    # If no data yet for raster or subject
+    # then return now
+    raster_in <- input$raster_file_input
+    geo_in <- input$geo_file_input
+    
+    if (is.null(c(raster_in, input$raster_text_input)))
       return(NULL)
     
+    if (is.null(c(geo_in, input$geo_text_input)))
+      return(NULL)
     
-    # Give loading bar
-    withProgress(message = 'Hold on',
-                 detail = 'Crunching data..',
-                 value = 5,
-                 {
-                   input_poly <- st_read(inFile$datapath)
+    if (is.null(input$stat))
+      return(NULL)
 
-                   # Check overall area of polygon
-                   overall_area <- sum(st_area(input_poly)) / 1e+06
-                   
-                   
-                   if(as.vector(overall_area)>20000){
-                     showNotification(paste("File too large. Max 20,000 km2 allowed"))
-                   }
-                   
-                   # Make call to algorithm
-                   
-                   request_json <- geojson_list(input_poly)
-                   input_data_list <- list(polys = request_json,
-                                      stats = input$stat,
-                                      geojson_out = "true")
-                   response <-  httr::POST(url = "http://srv.locational.io:8080/function/fn-worldpop-polygon-extractor",
-                                          body = as.json(input_data_list), 
-                                           content_type_json())
-                   
-                   response_for_map = st_read(as.json(content(response)))
-                   return(response_for_map)
-                 })
+
+    # If input is local file, read in
+    if(!is.null(raster_in)){
+      input_raster <- base64encode(raster_in$datapath)
+    }else{
+      input_raster <- input$raster_text_input
+    }
+    
+    if(!is.null(geo_in)){
+      input_geo <- geojson_list(st_read(geo_in$datapath))
+    }else{
+      input_geo <- input$geo_text_input
+    }
+  
+
+     # Check overall area of polygon
+     #overall_area <- sum(st_area(input_poly)) / 1e+06
+     
+     # 
+     # if(as.vector(overall_area)>20000){
+     #   showNotification(paste("File too large. Max 20,000 km2 allowed"))
+     # }
+     
+     # Make call to algorithm
+    input_data_list <- list(
+      raster = input_raster,
+      subject = input_geo,
+      stats = input$stat,
+      geojson_out = "true"
+    )
+
+
+     # 
+     # response_for_map = st_read(as.json(content(response)))
+     return(input_data_list)
+      })
+  
+  map_data <- eventReactive(input$goExtract, {
+    
+    response <-  httr::POST(url = "https://en88m642zwx3j.x.pipedream.net",
+                            body = as.json(request_list()),
+                            content_type_json())
+    print(response)
+    #st_read(as.json(content(response)))
+
   })
   
   output$pop_table <- DT::renderDT({
