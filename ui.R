@@ -33,10 +33,10 @@ dashboardPage(
                  ),
                  conditionalPanel(
                    condition = "input.raster_type == 'Base 64 string or URL'",
-                   textInput("raster_text_input", "", placeholder = "Base 64 string or URL")
+                   textInput("raster_text_input", label=NULL, placeholder = "Base 64 string or URL")
                  ),
                  
-                 h4("GeoJSON input type"),
+                 h4("Subject input type"),
                  radioButtons("GeoJSON_type","",
                               choices = c("Local file", "GeoJSON"),
                               selected = "Local file"),
@@ -46,7 +46,7 @@ dashboardPage(
                  ),
                  conditionalPanel(
                    condition = "input.GeoJSON_type == 'GeoJSON'",
-                   textInput("geo_text_input", "", placeholder = "GeoJSON string or URL")
+                   textInput("geo_text_input", label=NULL, placeholder = "GeoJSON string or URL")
                  ),
                  
                  

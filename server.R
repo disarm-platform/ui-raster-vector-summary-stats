@@ -84,10 +84,12 @@ shinyServer(function(input, output) {
   
   map_data <- eventReactive(input$goExtract, {
     
+    print("I'm here")
+
     response <-  httr::POST(url = "https://en88m642zwx3j.x.pipedream.net",
                             body = as.json(request_list()),
                             content_type_json())
-    print(response)
+    return(response)
     #st_read(as.json(content(response)))
 
   })
@@ -107,8 +109,8 @@ shinyServer(function(input, output) {
 
   
   output$pop_map <- renderLeaflet({
-    
-    if (is.null(map_data())) {
+
+    if (is.null(request_list())) {
       return(map %>% setView(0, 0, zoom = 2))
     }
     
