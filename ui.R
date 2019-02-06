@@ -21,9 +21,23 @@ dashboardPage(
       includeCSS("styles.css"),
 
              box(width = 3, height = 800,
-                 fileInput("File", "Query polygons", width = "100%"),
-                 shinyjs::disabled(textInput("textInput", "Query raster", 
-                                             value = "WorldPop2015.tif", width = "100%")),
+                 
+                 # Conditional inputs for local file v GeoJSON/base64 string/URL
+                 radioButtons("raster_type","Raster input type",
+                              choices = c("Local .tif file", "Base 64 string or URL"),
+                              selected = "Local .tif file"),
+                 conditionalPanel(
+                   condition = "input.raster_type == 'Local .tif file'",
+                   fileInput("file_input", "")
+                 ),
+                 conditionalPanel(
+                   condition = "input.raster_type == 'Base 64 string or URL'",
+                   textInput("text_input", "", placeholder = "Base 64 string or URL")
+                 ),
+                 
+                 #fileInput("File", "Query polygons", width = "100%"),
+                 #shinyjs::disabled(textInput("textInput", "Query raster", 
+                #                             value = "WorldPop2015.tif", width = "100%")),
                  selectInput("stat", "Statistic", 
                              c("Sum" = "sum",
                               "Mean" = "mean",
