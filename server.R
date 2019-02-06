@@ -29,21 +29,21 @@ map <- leaflet(max) %>%
 
 shinyServer(function(input, output) {
   
-  request_list <- reactive({
+  map_data <- eventReactive(input$goExtract, {
 
     # If no data yet for raster or subject
     # then return now
     raster_in <- input$raster_file_input
     geo_in <- input$geo_file_input
     
-    if (is.null(c(raster_in, input$raster_text_input)))
-      return(NULL)
-    
-    if (is.null(c(geo_in, input$geo_text_input)))
-      return(NULL)
-    
-    if (is.null(input$stat))
-      return(NULL)
+    # if (is.null(c(raster_in, input$raster_text_input)))
+    #   return(NULL)
+    # 
+    # if (is.null(c(geo_in, input$geo_text_input)))
+    #   return(NULL)
+    # 
+    # if (is.null(input$stat))
+    #   return(NULL)
 
 
     # If input is local file, read in
@@ -77,17 +77,8 @@ shinyServer(function(input, output) {
     )
 
 
-     # 
-     # response_for_map = st_read(as.json(content(response)))
-     return(input_data_list)
-      })
-  
-  map_data <- eventReactive(input$goExtract, {
-    
-    print("I'm here")
-
-    response <-  httr::POST(url = "https://en88m642zwx3j.x.pipedream.net",
-                            body = as.json(request_list()),
+    response <-  httr::POST(url = "https://en44o61b64j8n.x.pipedream.net",
+                            body = as.json(input_data_list),
                             content_type_json())
     return(response)
     #st_read(as.json(content(response)))
@@ -110,7 +101,7 @@ shinyServer(function(input, output) {
   
   output$pop_map <- renderLeaflet({
 
-    if (is.null(request_list())) {
+    if (is.null(map_data())) {
       return(map %>% setView(0, 0, zoom = 2))
     }
     
