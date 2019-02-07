@@ -16,6 +16,7 @@ library(RColorBrewer)
 library(geojsonio)
 library(base64enc)
 
+source('utils.R')
 
 # Define map
 map <- leaflet(max) %>%
@@ -35,13 +36,13 @@ shinyServer(function(input, output) {
     # then return now
     raster_in <- input$raster_file_input
     geo_in <- input$geo_file_input
-    
+
     # if (is.null(c(raster_in, input$raster_text_input)))
     #   return(NULL)
-    # 
+    #
     # if (is.null(c(geo_in, input$geo_text_input)))
     #   return(NULL)
-    # 
+    #
     # if (is.null(input$stat))
     #   return(NULL)
 
@@ -52,22 +53,22 @@ shinyServer(function(input, output) {
     }else{
       input_raster <- input$raster_text_input
     }
-    
+
     if(!is.null(geo_in)){
       input_geo <- geojson_list(st_read(geo_in$datapath))
     }else{
       input_geo <- input$geo_text_input
     }
-  
+
 
      # Check overall area of polygon
      #overall_area <- sum(st_area(input_poly)) / 1e+06
-     
-     # 
+
+     #
      # if(as.vector(overall_area)>20000){
      #   showNotification(paste("File too large. Max 20,000 km2 allowed"))
      # }
-     
+
      # Make call to algorithm
     input_data_list <- list(
       raster = input_raster,
@@ -76,12 +77,12 @@ shinyServer(function(input, output) {
       geojson_out = "true"
     )
 
-
-    response <-  httr::POST(url = "http://faas.srv.disarm.io/function/fn-raster-vector-summary-stats_0_0_4",
+    response <-  httr::POST(url = "http://faas.srv.disarm.io/function/fn-raster-vector-summary-stats_0_0_5",
                             body = as.json(input_data_list),
                             content_type_json(),
                             timeout(60))
-    
+
+    #load('response.Rdata')
     # Check status
     if(response$status_code != 200){
       stop('Sorry, there was a problem with your request - check your inputs and try again')
@@ -116,34 +117,34 @@ shinyServer(function(input, output) {
 
     extracted_stat = as.data.frame(map_data())[,input$stat]
 
-    # Define color palette
-    pal <-
-      colorNumeric(brewer.pal(9, "Greens")[5:9],
-                   extracted_stat)
-    
-    labels <- sprintf(
-      paste("<strong>Population: </strong>",
-            extracted_stat)
-    ) %>% lapply(htmltools::HTML)
-    
+    # Define color palettes
+    #col_pals_list <- define_color_palettes(extracted_stat)
+    col_pals_list <- list()
+    # labels <- sprintf(
+    #   paste("<strong>Population: </strong>",
+    #         extracted_stat)
+    # ) %>% lapply(htmltools::HTML)
+    # 
     # Map
-    map %>% addPolygons(
-      data = map_data(),
-      color = "#696969",
-      fillColor = pal(extracted_stat),
-      fillOpacity = 0.6,
-      weight = 3,
-      highlightOptions = highlightOptions(
-        weight = 5,
-        color = "#FF0080",
-        bringToFront = TRUE,
-        fillOpacity = 0.7
-      ),
-      label = labels) %>%
-        leaflet::addLegend(pal = pal, 
-                           values = extracted_stat,
-                           title = "Population")
-
+    # map %>% addPolygons(
+    #   data = map_data(),
+    #   color = "#696969",
+    #   fillColor = pal(extracted_stat),
+    #   fillOpacity = 0.6,
+    #   weight = 3,
+    #   highlightOptions = highlightOptions(
+    #     weight = 5,
+    #     color = "#FF0080",
+    #     bringToFront = TRUE,
+    #     fillOpacity = 0.7
+    #   ),
+    #   label = labels) %>%
+    #     leaflet::addLegend(pal = pal,
+    #                        values = extracted_stat,
+    #                        title = "Population")
+      map %>% 
+        add_all_map_layers(map_data(), col_pals_list, input$stat) %>%
+        addLayersControl(overlayGroups = input$stat)
       
       # addLayersControl(overlayGroups = c("Survey points"),
       #                  options = layersControlOptions(collapsed = F))
