@@ -77,19 +77,28 @@ shinyServer(function(input, output) {
     )
 
 
-    response <-  httr::POST(url = "https://en44o61b64j8n.x.pipedream.net",
+    response <-  httr::POST(url = "http://faas.srv.disarm.io/function/fn-raster-vector-summary-stats_0_0_4",
                             body = as.json(input_data_list),
-                            content_type_json())
-    return(response)
-    #st_read(as.json(content(response)))
+                            content_type_json(),
+                            timeout(60))
+    
+    # Check status
+    if(response$status_code != 200){
+      stop('Sorry, there was a problem with your request - check your inputs and try again')
+    }
+    
+    # Return geojson as sf object
+    return(st_read(as.json(content(response))))
 
   })
   
   output$pop_table <- DT::renderDT({
+  
  
     if (is.null(map_data())) {
       return(NULL)
     }
+
     map_data_no_geom <- map_data()
     st_geometry(map_data_no_geom) <- NULL
     output_table <- as.data.frame(map_data_no_geom)
@@ -101,10 +110,10 @@ shinyServer(function(input, output) {
   
   output$pop_map <- renderLeaflet({
 
-    if (is.null(map_data())) {
+    if (input$goExtract[1]==0) {
       return(map %>% setView(0, 0, zoom = 2))
     }
-    
+
     extracted_stat = as.data.frame(map_data())[,input$stat]
 
     # Define color palette
@@ -118,13 +127,12 @@ shinyServer(function(input, output) {
     ) %>% lapply(htmltools::HTML)
     
     # Map
-    input_poly_sp <- as(map_data(), "Spatial")
     map %>% addPolygons(
-      data = input_poly_sp,
+      data = map_data(),
       color = "#696969",
       fillColor = pal(extracted_stat),
       fillOpacity = 0.6,
-      weight = 4,
+      weight = 3,
       highlightOptions = highlightOptions(
         weight = 5,
         color = "#FF0080",
