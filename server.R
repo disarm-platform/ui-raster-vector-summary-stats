@@ -115,11 +115,12 @@ shinyServer(function(input, output) {
       return(map %>% setView(0, 0, zoom = 2))
     }
 
-    extracted_stat = as.data.frame(map_data())[,input$stat]
-
+    extracted_stat = as.data.frame(as.data.frame(map_data())[,input$stat])
+    names(extracted_stat) <- input$stat
+    
     # Define color palettes
-    #col_pals_list <- define_color_palettes(extracted_stat)
-    col_pals_list <- list()
+    col_pals_list <- define_color_palettes(extracted_stat)
+    #col_pals_list <- list()
     # labels <- sprintf(
     #   paste("<strong>Population: </strong>",
     #         extracted_stat)
@@ -132,19 +133,28 @@ shinyServer(function(input, output) {
     #   fillColor = pal(extracted_stat),
     #   fillOpacity = 0.6,
     #   weight = 3,
-    #   highlightOptions = highlightOptions(
-    #     weight = 5,
-    #     color = "#FF0080",
-    #     bringToFront = TRUE,
-    #     fillOpacity = 0.7
-    #   ),
+      # highlightOptions = highlightOptions(
+      #   weight = 5,
+      #   color = "#FF0080",
+      #   bringToFront = TRUE,
+      #   fillOpacity = 0.7
+      # ),
     #   label = labels) %>%
     #     leaflet::addLegend(pal = pal,
     #                        values = extracted_stat,
     #                        title = "Population")
+     # Define layer(s) to hide
+     if(length(input$stat)==1){
+       to_hide <- NULL
+     }else{
+       to_hide <- input$stat[-1]
+     }
+    
       map %>% 
         add_all_map_layers(map_data(), col_pals_list, input$stat) %>%
-        addLayersControl(overlayGroups = input$stat)
+        addLayersControl(overlayGroups = input$stat,
+                         options = layersControlOptions(collapsed = FALSE)) %>% 
+        hideGroup(to_hide)
       
       # addLayersControl(overlayGroups = c("Survey points"),
       #                  options = layersControlOptions(collapsed = F))
