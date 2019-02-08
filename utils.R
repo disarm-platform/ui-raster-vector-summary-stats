@@ -32,7 +32,7 @@ add_all_map_layers = function(map, map_data, palette_list, available_layers) {
                         fillOpacity = 0.7
                       ),
                       label = labels) %>%
-      leaflet::addLegend(pal = palette_list[[layer]], 
+      leaflet::addLegend("topleft", pal = palette_list[[layer]], 
                 values = as.data.frame(map_data)[,layer],
                 group = layer,
                 title = layer)
