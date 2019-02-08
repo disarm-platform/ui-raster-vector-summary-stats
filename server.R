@@ -19,15 +19,18 @@ library(base64enc)
 source('utils.R')
 
 # Define map
-map <- leaflet(max) %>%
+map <- leaflet() %>%
   addTiles(
     "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}{r}.png"
   )
 
 shinyServer(function(input, output) {
+  
   map_data <- eventReactive(input$goExtract, {
-    # If no data yet for raster or subject
-    # then return now
+
+    
+  withProgress(message = 'Crunching data..',{
+    
     raster_in <- input$raster_file_input
     geo_in <- input$geo_file_input
     
@@ -88,8 +91,8 @@ shinyServer(function(input, output) {
     
     # Return geojson as sf object
     return(st_read(as.json(content(response))))
-    
   })
+})
   
   output$output_table <-
     
@@ -110,7 +113,11 @@ shinyServer(function(input, output) {
   
   
   output$output_map <- renderLeaflet({
-
+    
+    if(input$goExtract[1]==0){
+    return(map %>% setView(0,0,zoom=2))
+    }
+    
     output_map <- eventReactive(input$goExtract, {
       extracted_stat = as.data.frame(as.data.frame(map_data())[, input$stat])
       names(extracted_stat) <- input$stat

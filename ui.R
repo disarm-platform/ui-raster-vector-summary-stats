@@ -74,12 +74,17 @@ dashboardPage(
                     #             c("True" = "TRUE",
                     #               "False" = "FALSE")),
                     
-                    actionButton("goExtract", "RUN QUERY"),
-                    
-                    box(
-                      downloadButton("downloadData", "Download table"),
-                      downloadButton("downloadGeoData", "Download geojson")
-                    )
+                    br(actionButton("goExtract", "RUN QUERY")),
+                    #br(actionButton("goExtract", "", icon = icon("play-circle", "fa-3x"))),
+
+                    conditionalPanel(condition = "input.goExtract > 0",
+                                     br(h4("Download results")),  
+                                     downloadButton("downloadData", "Download table"),
+                                     downloadButton("downloadGeoData", "Download geojson"))
+                    # br(h4("Download results")),             
+                    #   downloadButton("downloadData", "Download table"),
+                    #   downloadButton("downloadGeoData", "Download geojson")
+
                   ),
                   
                   box(leafletOutput(
