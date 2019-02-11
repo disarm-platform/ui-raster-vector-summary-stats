@@ -10,15 +10,11 @@ dashboardPage(
   dashboardSidebar(disable = T),
   dashboardBody(useShinyjs(),
                 
-                # shinyDashboardThemes(
-                #   theme = "grey_dark"
-                # ),
-                
                 fluidRow(
                   includeCSS("styles.css"),
                   
                   box(
-                    width = 3,
+                    width = 2,
                     height = 800,
                     
                     # Conditional inputs for local file v GeoJSON/base64 string/URL
@@ -54,10 +50,6 @@ dashboardPage(
                       textInput("geo_text_input", label = NULL, placeholder = "GeoJSON string or URL")
                     ),
                     
-                    
-                    #fileInput("File", "Query polygons", width = "100%"),
-                    #shinyjs::disabled(textInput("textInput", "Query raster",
-                    #                             value = "WorldPop2015.tif", width = "100%")),
                     selectInput(
                       "stat",
                       "Statistic",
@@ -81,15 +73,12 @@ dashboardPage(
                                      br(h4("Download results")),  
                                      downloadButton("downloadData", "Download table"),
                                      downloadButton("downloadGeoData", "Download geojson"))
-                    # br(h4("Download results")),             
-                    #   downloadButton("downloadData", "Download table"),
-                    #   downloadButton("downloadGeoData", "Download geojson")
 
                   ),
                   
                   box(leafletOutput(
-                    "output_map", height = 800, width = "100%"
-                  ), width = 9),
+                    "output_map", height = 750, width = "100%"
+                  ), height = 800, width = 10),
                   box(DT::DTOutput('output_table'), width = 12)
                 ))
 )

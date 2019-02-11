@@ -1,20 +1,15 @@
 library(raster)
 library(sp)
 library(leaflet)
-library(RANN)
-library(rgeos)
 library(rjson)
 library(httr)
-library(wesanderson)
 library(readr)
-library(stringi)
 library(DT)
-library(ggplot2)
-library(velox)
 library(sf)
 library(RColorBrewer)
 library(geojsonio)
 library(base64enc)
+library(MapPalettes)
 
 source('utils.R')
 
@@ -82,8 +77,7 @@ shinyServer(function(input, output) {
         content_type_json(),
         timeout(60)
       )
-    
-    #load('response.Rdata')
+
     # Check status
     if (response$status_code != 200) {
       stop('Sorry, there was a problem with your request - check your inputs and try again')
