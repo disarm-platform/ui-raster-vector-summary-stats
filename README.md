@@ -1,3 +1,3 @@
 # ui-worldpop-polygon-extractor
 
-Friends with http://github.com/locational/fn-worldpop-polygon-extractor
+Friends with https://github.com/disarm-platform/fn-raster-vector-summary-stats
