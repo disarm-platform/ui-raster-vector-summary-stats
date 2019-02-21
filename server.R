@@ -75,7 +75,7 @@ shinyServer(function(input, output) {
         url = "http://faas.srv.disarm.io/function/fn-raster-vector-summary-stats_0_0_5",
         body = as.json(input_data_list),
         content_type_json(),
-        timeout(60)
+        timeout(90)
       )
 
     # Check status
@@ -113,6 +113,20 @@ shinyServer(function(input, output) {
     }
     
     output_map <- eventReactive(input$goExtract, {
+      
+      # If points
+      if(st_geometry_type(map_data())[1] %in% c("POINT", "MULTIPOINT")){
+        
+        col_pal <- colorNumeric(map_palette("bruiser", 10),
+                                 as.data.frame(as.data.frame(map_data())[, value]))
+        
+        point_map <- map %>% addCircleMarkers(data = map_data(),
+                                 color = col_pal(as.data.frame(as.data.frame(map_data())[, value])))
+       
+        browser()
+         return(point_map)
+      }
+      
       extracted_stat = as.data.frame(as.data.frame(map_data())[, input$stat])
       names(extracted_stat) <- input$stat
       
