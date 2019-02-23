@@ -118,12 +118,14 @@ shinyServer(function(input, output) {
       if(st_geometry_type(map_data())[1] %in% c("POINT", "MULTIPOINT")){
         
         col_pal <- colorNumeric(map_palette("bruiser", 10),
-                                 as.data.frame(as.data.frame(map_data())[, value]))
-        
+                                 as.data.frame(as.data.frame(map_data())[, "value"]))
+
         point_map <- map %>% addCircleMarkers(data = map_data(),
-                                 color = col_pal(as.data.frame(as.data.frame(map_data())[, value])))
+                                 color = col_pal(unlist(as.data.frame(as.data.frame(map_data())[, "value"]))),
+                                 fillOpacity = 0.6) %>%
+          
+          addLegend(pal = col_pal, values = unlist(as.data.frame(as.data.frame(map_data())[, "value"])))
        
-        browser()
          return(point_map)
       }
       
