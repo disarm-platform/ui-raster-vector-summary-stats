@@ -61,16 +61,14 @@ shinyServer(function(input, output) {
     # if(as.vector(overall_area)>20000){
     #   showNotification(paste("File too large. Max 20,000 km2 allowed"))
     # }
-    
+
     # Make call to algorithm
     input_data_list <- list(
       raster = input_raster,
       subject = input_geo,
-      stats = input$stat,
-      geojson_out = "true"
+      stats = input$stat
     )
     
-    browser()
     response <-
       httr::POST(
         url = "https://faas.srv.disarm.io/function/fn-raster-vector-summary-stats",
@@ -85,7 +83,8 @@ shinyServer(function(input, output) {
     }
     
     # Return geojson as sf object
-    return(st_read(as.json(content(response))))
+    response_content <- content(response)
+    return(st_read(as.json(response_content$content)))
   })
 })
   
