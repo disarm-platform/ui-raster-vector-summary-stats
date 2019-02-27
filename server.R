@@ -70,14 +70,15 @@ shinyServer(function(input, output) {
       geojson_out = "true"
     )
     
+    browser()
     response <-
       httr::POST(
-        url = "http://faas.srv.disarm.io/function/fn-raster-vector-summary-stats_0_0_5",
+        url = "https://faas.srv.disarm.io/function/fn-raster-vector-summary-stats",
         body = as.json(input_data_list),
         content_type_json(),
         timeout(90)
       )
-
+     
     # Check status
     if (response$status_code != 200) {
       stop('Sorry, there was a problem with your request - check your inputs and try again')
