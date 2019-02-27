@@ -72,7 +72,7 @@ shinyServer(function(input, output) {
     
     response <-
       httr::POST(
-        url = "http://faas.srv.disarm.io/function/fn-raster-vector-summary-stats_0_0_5",
+        url = "https://faas.srv.disarm.io/function/fn-raster-vector-summary-stats",
         body = as.json(input_data_list),
         content_type_json(),
         timeout(90)
