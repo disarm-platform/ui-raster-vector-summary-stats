@@ -66,7 +66,7 @@ shinyServer(function(input, output) {
     input_data_list <- list(
       raster = input_raster,
       subject = input_geo,
-      stats = input$stat
+      stats = paste(input$stat, collapse = ' ')
     )
 
     response <-
@@ -76,7 +76,7 @@ shinyServer(function(input, output) {
         content_type_json(),
         timeout(90)
       )
-     
+    
     # Check status
     if (response$status_code != 200) {
       stop('Sorry, there was a problem with your request - check your inputs and try again')
