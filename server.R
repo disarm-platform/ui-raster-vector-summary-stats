@@ -81,7 +81,7 @@ shinyServer(function(input, output) {
     if (response$status_code != 200) {
       stop('Sorry, there was a problem with your request - check your inputs and try again')
     }
-    
+
     # Return geojson as sf object
     response_content <- content(response)
     return(st_read(as.json(response_content$result)))
@@ -128,7 +128,7 @@ shinyServer(function(input, output) {
        
          return(point_map)
       }
-      
+
       extracted_stat = as.data.frame(as.data.frame(map_data())[, input$stat])
       names(extracted_stat) <- input$stat
       
