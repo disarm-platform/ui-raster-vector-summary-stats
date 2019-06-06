@@ -44,13 +44,21 @@ shinyServer(function(input, output) {
     if (!is.null(raster_in)) {
       input_raster <- base64encode(raster_in$datapath)
     } else{
-      input_raster <- input$raster_text_input
+      if(!(input$raster_text_input == "")){
+        input_raster <- input$raster_text_input
+      }else{
+        input_raster <- input$raster_demo_input  
+      }
     }
     
     if (!is.null(geo_in)) {
       input_geo <- geojson_list(st_read(geo_in$datapath))
     } else{
-      input_geo <- input$geo_text_input
+      if(!(input$geo_text_input == "")){
+        input_geo <- geojson_list(st_read(input$geo_text_input))
+      }else{
+        input_geo <- geojson_list(st_read(input$geo_demo_input))
+      }
     }
     
     
