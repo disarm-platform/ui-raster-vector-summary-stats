@@ -79,7 +79,7 @@ shinyServer(function(input, output) {
 
     response <-
       httr::POST(
-        url = "https://faas.srv.disarm.io/function/fn-raster-vector-summary-stats",
+        url = "https://faas.srv.disarm.io/function/fn-raster-vector-summary-stats-enhanced",
         body = as.json(input_data_list),
         content_type_json(),
         timeout(90)
@@ -92,7 +92,13 @@ shinyServer(function(input, output) {
 
     # Return geojson as sf object
     response_content <- content(response)
-    return(st_read(as.json(response_content$result)))
+    geo_result <- st_read(as.json(response_content$result), quiet = TRUE)
+    
+    # Deal with any missing values
+    for(stat in input$stat){
+    geo_result[[stat]] <- as.numeric(as.character(geo_result[[stat]]))
+    }
+    return(geo_result)
   })
 })
   
